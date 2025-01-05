@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול אורחים</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>אישורי הגעה</h1>
+    <label for="fileInput" id="fileLabel">העלאת אקסל חדש</label>
+
+    <input type="file" id="fileInput" accept=".xlsx">
+
+    <div id="summary" style="text-align: center; margin-top: 20px; font-size: 18px;">
+      
+    </div>
+    <button onclick="downloadUpdatedExcel()">הורד טבלה מעודכנת לקובץ אקסל</button>
+    <button id="sendInvitationsButton" onclick="sendInvitations()">שלח הזמנה למוזמנים</button>
+    <button id="sendRemindersButton" onclick="sendReminders()">שלח תזכורת למוזמנים שלא אישרו הגעה</button>
+
+
+    <table id="guestTable">
+        <thead>
+            <tr>
+                <th>מספר אורח</th>
+                <th>שם מלא</th>
+                <th>מספר טלפון</th>
+                <th>מספר אורחים</th>
+                <th>סטטוס הגעה</th>
+                <th> הערות אורחים נוספים</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    
+    <script>
+        // קריאה להטענת הנתונים אם יש ב-localStorage
+        window.onload = function() {
+            loadFromLocalStorage();
+        };
+    </script>
+    
+</body>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+</html>
