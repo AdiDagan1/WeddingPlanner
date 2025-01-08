@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול רשימות משימות</title>
+    <style>
+        body {
+            padding: 20px;
+            gap: 20px;
+            direction: rtl;
+            background: #a2998c;
+        }
+        .deleteTaskBtn {
+            margin-left: 10px;
+            color: white;
+            background-color: #ac4dff;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .taskContainer {
+            margin-top: 10px;
+        }
+        .design, .food, .sapak {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px; 
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+            width: 20%;
+        }
+
+        .design {
+            background: linear-gradient(135deg, #F7EFE5, #E8DCCA);
+        }
+
+        .food {
+            background: linear-gradient(135deg, #E2BFD9, #D1A4C7);
+        }
+
+        .sapak {
+            background: linear-gradient(135deg, #C8A1E0, #B38ED0);
+        }
+
+        h3 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>צ'ק ליסט לתכנון החתונה</h1>
+    </div>
+    <div>
+        <section id="categories">
+            <div class="design" id="design">
+                <h3>עיצוב</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('design')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+
+            <div class="food" id="food">
+                <h3>אוכל</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('food')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+
+            <div class="sapak" id="sapak">
+                <h3>ספקים</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('sapak')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let taskCounter = 0;
+
+        // Function to load tasks from localStorage
+        const loadTasks = (categoryId) => {
+            const category = document.getElementById(categoryId);
+            const taskContainer = category.querySelector(".taskContainer");
+            const savedTasks = JSON.parse(localStorage.getItem(categoryId)) || [];
+
+            savedTasks.forEach((task) => {
+                createTaskElement(taskContainer, categoryId, task.text, task.id, task.completed);
+            });
+        };
+
+        // Function to save tasks to localStorage
+        const saveTasks = (categoryId) => {
+            const category = document.getElementById(categoryId);
+            const taskContainer = category.querySelector(".taskContainer");
+            const tasks = [];
+
+            taskContainer.querySelectorAll("div").forEach((taskDiv) => {
+                const checkbox = taskDiv.querySelector("input[type='checkbox']");
+                const label = taskDiv.querySelector("label");
+                tasks.push({
+                    id: checkbox.id,
+                    text: label.textContent,
+                    completed: checkbox.checked,
+                });
+            });
+
+            localStorage.setItem(categoryId, JSON.stringify(tasks));
+        };
+
+        // Function to create a task element
+        const createTaskElement = (taskContainer, categoryId, taskText, taskId = `task${taskCounter}`, completed = false) => {
+            const newTaskDiv = document.createElement("div");
+            const newCheckBox = document.createElement("input");
+            const newLabel = document.createElement("label");
+            const deleteButton = document.createElement("button");
+
+            newCheckBox.type = "checkbox";
+            newCheckBox.id = taskId;
+            newCheckBox.checked = completed;
+            newLabel.htmlFor = taskId;
+            newLabel.textContent = taskText;
+            deleteButton.textContent = "מחק";
+            deleteButton.className = "deleteTaskBtn";
+
+            deleteButton.onclick = () => {
+                taskContainer.removeChild(newTaskDiv);
+                saveTasks(categoryId);
+            };
+
+            newTaskDiv.appendChild(newCheckBox);
+            newTaskDiv.appendChild(newLabel);
+            newTaskDiv.appendChild(deleteButton);
+
+            taskContainer.appendChild(newTaskDiv);
+
+            taskCounter++;
+        };
+
+        // Function to add a new task
+        const addMission = (categoryId) => {
+            const category = document.getElementById(categoryId);
+            const inputField = category.querySelector(".newTaskInput");
+            const taskContainer = category.querySelector(".taskContainer");
+            const taskText = inputField.value.trim();
+
+            if (taskText === "") {
+                alert("אנא הזן משימה לפני הוספה");
+                return;
+            }
+
+            createTaskElement(taskContainer, categoryId, taskText);
+            saveTasks(categoryId);
+
+            inputField.value = "";
+        };
+
+        // Load tasks for all categories on page load
+        window.onload = () => {
+            ["design", "food", "sapak"].forEach(loadTasks);
+        };
+    </script>
+</body>
+</html>
