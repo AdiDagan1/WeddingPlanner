@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול תקציב</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h1 {
+            color: #333;
+        }
+        .budget-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .budget-summary {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e9f7ef;
+            border: 1px solid #b8e4c9;
+            border-radius: 4px;
+        }
+        .expense-list {
+            margin-top: 20px;
+        }
+        .expense-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .expense-list li {
+            background: #f9f9f9;
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="budget-container">
+        <h1>ניהול תקציב</h1>
+        <form id="budget-form">
+            <div class="form-group">
+                <label for="total-budget">סך התקציב:</label>
+                <input type="number" id="total-budget" placeholder="הזן את סך התקציב שלך" required>
+            </div>
+            <div class="form-group">
+                <label for="expense-type">סוג הוצאה:</label>
+                <select id="expense-type">
+                    <option value="">בחר סוג הוצאה</option>
+                    <option value="קניות בסופר">קניות בסופר</option>
+                    <option value="תשלום חשמל">תשלום חשמל</option>
+                    <option value="דלק">דלק</option>
+                    <option value="בילוי">בילוי</option>
+                    <option value="אחר">אחר...</option>
+                </select>
+            </div>
+            <div class="form-group" id="custom-expense-group" style="display: none;">
+                <label for="custom-expense">סוג הוצאה מותאם:</label>
+                <input type="text" id="custom-expense" placeholder="הזן סוג הוצאה חדש">
+            </div>
+            <div class="form-group">
+                <label for="expense-amount">סכום הוצאה:</label>
+                <input type="number" id="expense-amount" placeholder="הזן את סכום ההוצאה" required>
+            </div>
+            <button type="button" id="add-expense">הוסף הוצאה</button>
+        </form>
+
+        <div class="budget-summary">
+            <p><strong>סך התקציב:</strong> <span id="display-total">0</span> ש"ח</p>
+            <p><strong>סך ההוצאות:</strong> <span id="display-expenses">0</span> ש"ח</p>
+            <p><strong>תקציב נותר:</strong> <span id="display-remaining">0</span> ש"ח</p>
+        </div>
+
+        <div class="expense-list">
+            <h3>רשימת הוצאות:</h3>
+            <ul id="expense-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        // משתנים
+        let totalBudget = 0;
+        let totalExpenses = 0;
+
+        // אלמנטים מה-HTML
+        const totalBudgetInput = document.getElementById('total-budget');
+        const expenseTypeInput = document.getElementById('expense-type');
+        const customExpenseGroup = document.getElementById('custom-expense-group');
+        const customExpenseInput = document.getElementById('custom-expense');
+        const expenseAmountInput = document.getElementById('expense-amount');
+        const addExpenseButton = document.getElementById('add-expense');
+        const displayTotal = document.getElementById('display-total');
+        const displayExpenses = document.getElementById('display-expenses');
+        const displayRemaining = document.getElementById('display-remaining');
+        const expenseList = document.getElementById('expense-list');
+
+        // הצגת שדה סוג הוצאה מותאם אישית
+        expenseTypeInput.addEventListener('change', () => {
+            if (expenseTypeInput.value === 'אחר') {
+                customExpenseGroup.style.display = 'block';
+            } else {
+                customExpenseGroup.style.display = 'none';
+                customExpenseInput.value = '';
+            }
+        });
+
+        // עדכון התקציב הכולל
+        totalBudgetInput.addEventListener('change', () => {
+            totalBudget = parseFloat(totalBudgetInput.value) || 0;
+            updateDisplay();
+        });
+
+        // הוספת הוצאה
+        addExpenseButton.addEventListener('click', () => {
+            const expenseType = expenseTypeInput.value === 'אחר' ? customExpenseInput.value : expenseTypeInput.value;
+            const expenseAmount = parseFloat(expenseAmountInput.value) || 0;
+
+            if (!expenseType || expenseAmount <= 0) {
+                alert('אנא הזן סוג הוצאה וסכום תקף.');
+                return;
+            }
+
+            totalExpenses += expenseAmount;
+
+            // הוספת הוצאה לרשימה
+            const listItem = document.createElement('li');
+            listItem.textContent = `${expenseType} - ${expenseAmount.toFixed(2)} ש"ח`;
+            expenseList.appendChild(listItem);
+
+            expenseTypeInput.value = '';
+            customExpenseInput.value = '';
+            expenseAmountInput.value = '';
+            customExpenseGroup.style.display = 'none';
+
+            updateDisplay();
+        });
+
+        // עדכון תצוגה
+        function updateDisplay() {
+            displayTotal.textContent = totalBudget.toFixed(2);
+            displayExpenses.textContent = totalExpenses.toFixed(2);
+            displayRemaining.textContent = (totalBudget - totalExpenses).toFixed(2);
+        }
+    </script>
+</body>
+</html>
