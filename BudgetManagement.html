@@ -68,16 +68,40 @@
             border: 1px solid #ddd;
             border-radius: 4px;
         }
+        .budget-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .budget-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .budget-header .edit-icon {
+            margin-left: 10px;
+            cursor: pointer;
+            color: #007bff;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="budget-container">
         <h1>ניהול תקציב</h1>
+        <div class="budget-header" id="budget-header" style="display: none;">
+            <h2 id="header-budget">סך התקציב: 0 ש"ח</h2>
+            <span class="edit-icon" id="edit-budget">✏️</span>
+        </div>
+
         <form id="budget-form">
-            <div class="form-group">
+            <div class="form-group" id="budget-input-group">
                 <label for="total-budget">סך התקציב:</label>
-                <input type="number" id="total-budget" placeholder="הזן את סך התקציב שלך" required>
+                <input type="text" id="total-budget" placeholder="הזן את סך התקציב שלך" required>
+                <button type="button" id="set-budget">שמור תקציב</button>
             </div>
+
             <div class="form-group">
                 <label for="expense-type">סוג הוצאה:</label>
                 <select id="expense-type">
@@ -95,7 +119,7 @@
             </div>
             <div class="form-group">
                 <label for="expense-amount">סכום הוצאה:</label>
-                <input type="number" id="expense-amount" placeholder="הזן את סכום ההוצאה" required>
+                <input type="text" id="expense-amount" placeholder="הזן את סכום ההוצאה" required>
             </div>
             <button type="button" id="add-expense">הוסף הוצאה</button>
         </form>
@@ -119,6 +143,11 @@
 
         // אלמנטים מה-HTML
         const totalBudgetInput = document.getElementById('total-budget');
+        const setBudgetButton = document.getElementById('set-budget');
+        const budgetHeader = document.getElementById('budget-header');
+        const headerBudget = document.getElementById('header-budget');
+        const editBudgetIcon = document.getElementById('edit-budget');
+
         const expenseTypeInput = document.getElementById('expense-type');
         const customExpenseGroup = document.getElementById('custom-expense-group');
         const customExpenseInput = document.getElementById('custom-expense');
@@ -128,6 +157,21 @@
         const displayExpenses = document.getElementById('display-expenses');
         const displayRemaining = document.getElementById('display-remaining');
         const expenseList = document.getElementById('expense-list');
+
+        // שמירת התקציב הראשוני
+        setBudgetButton.addEventListener('click', () => {
+            totalBudget = parseFloat(totalBudgetInput.value.replace(/,/g, '')) || 0;
+            updateDisplay();
+            headerBudget.textContent = `סך התקציב: ${formatNumber(totalBudget)} ש"ח`;
+            budgetHeader.style.display = 'flex';
+            document.getElementById('budget-input-group').style.display = 'none';
+        });
+
+        // עריכת התקציב
+        editBudgetIcon.addEventListener('click', () => {
+            document.getElementById('budget-input-group').style.display = 'block';
+            totalBudgetInput.value = formatNumber(totalBudget);
+        });
 
         // הצגת שדה סוג הוצאה מותאם אישית
         expenseTypeInput.addEventListener('change', () => {
@@ -139,16 +183,10 @@
             }
         });
 
-        // עדכון התקציב הכולל
-        totalBudgetInput.addEventListener('change', () => {
-            totalBudget = parseFloat(totalBudgetInput.value) || 0;
-            updateDisplay();
-        });
-
         // הוספת הוצאה
         addExpenseButton.addEventListener('click', () => {
             const expenseType = expenseTypeInput.value === 'אחר' ? customExpenseInput.value : expenseTypeInput.value;
-            const expenseAmount = parseFloat(expenseAmountInput.value) || 0;
+            const expenseAmount = parseFloat(expenseAmountInput.value.replace(/,/g, '')) || 0;
 
             if (!expenseType || expenseAmount <= 0) {
                 alert('אנא הזן סוג הוצאה וסכום תקף.');
@@ -159,7 +197,7 @@
 
             // הוספת הוצאה לרשימה
             const listItem = document.createElement('li');
-            listItem.textContent = `${expenseType} - ${expenseAmount.toFixed(2)} ש"ח`;
+            listItem.textContent = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח`;
             expenseList.appendChild(listItem);
 
             expenseTypeInput.value = '';
@@ -172,9 +210,27 @@
 
         // עדכון תצוגה
         function updateDisplay() {
-            displayTotal.textContent = totalBudget.toFixed(2);
-            displayExpenses.textContent = totalExpenses.toFixed(2);
-            displayRemaining.textContent = (totalBudget - totalExpenses).toFixed(2);
+            displayTotal.textContent = formatNumber(totalBudget);
+            displayExpenses.textContent = formatNumber(totalExpenses);
+            displayRemaining.textContent = formatNumber(totalBudget - totalExpenses);
+        }
+
+        // הוספת פיסוק בשדה הקלט בזמן הזנה
+        totalBudgetInput.addEventListener('input', () => {
+            totalBudgetInput.value = formatInput(totalBudgetInput.value);
+        });
+
+        expenseAmountInput.addEventListener('input', () => {
+            expenseAmountInput.value = formatInput(expenseAmountInput.value);
+        });
+
+        // פונקציות לפורמט מספרים
+        function formatNumber(number) {
+            return number.toLocaleString('he-IL');
+        }
+
+        function formatInput(value) {
+            return value.replace(/,/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
     </script>
 </body>
