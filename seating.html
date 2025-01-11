@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>תכנון הושבה</title>
+  <title>מערכת סידור הושבה</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 Library -->
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
-      background-color: #fef6e4; 
+      background-color: #fef6e4; /* רקע בז' */
     }
 
     h1 {
       margin: 20px 0;
-      color: #d291bc; 
+      color: #d291bc; /* ורוד עדין */
     }
 
     #controls {
@@ -26,7 +27,7 @@
       margin: 5px;
       padding: 10px 15px;
       border: none;
-      background-color: #d291bc; 
+      background-color: #d291bc; /* ורוד */
       color: white;
       font-size: 16px;
       border-radius: 5px;
@@ -39,21 +40,29 @@
 
     #canvas {
       width: 90%;
-      height: 600px;
+      height: 1000px;
+      max-height: 90%;
       border: 2px solid #ccc;
       margin: 0 auto;
       position: relative;
-      background-color: #fff; 
+      background-color: #fff; /* לבן */
       overflow: hidden;
     }
 
-    .table {
+    .table-wrapper {
       position: absolute;
-      text-align: center;
-      border: 2px solid #d291bc; 
-      background-color: #fde2e4; 
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
       cursor: grab;
+    }
+
+    .table {
+      text-align: center;
+      border: 2px solid #d291bc; /* ורוד */
+      background-color: #fde2e4; /* ורוד עדין */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
     }
 
     .round {
@@ -63,13 +72,13 @@
     .chair {
       width: 40px;
       height: 40px;
-      background-color: #f8ad9d; 
+      background-color: #f8ad9d; /* ורוד כהה */
       border: 1px solid #c374a8;
       border-radius: 50%;
-      position: absolute;
       display: flex;
       justify-content: center;
       align-items: center;
+      margin: 5px; /* מרווח שווה בין הכיסאות */
       font-size: 12px;
       color: white;
       font-weight: bold;
@@ -88,100 +97,138 @@
   </style>
 </head>
 <body>
-  <h1>מערכת לתכנון הושבה</h1>
+  <h1>מערכת סידור הושבה</h1>
   <div id="controls">
-    <button onclick="setTotalGuests()">קבע כמות מוזמנים</button>
+    <button onclick="setTotalGuests()">קבע מספר מוזמנים</button>
     <button onclick="addTable('round')">הוסף שולחן עגול</button>
-    <button onclick="addTable('square')">הוסף שולחן מרובע</button>
+    <button onclick="addTable('square')">הוסף שולחן ריבועי</button>
+    <button onclick="addTable('rectangle')">הוסף שולחן מלבני</button>
   </div>
-  <p>סך המוזמנים: <span id="totalGuests">0</span></p>
+  <p>סך כל המוזמנים: <span id="totalGuests">0</span></p>
   <div id="canvas">
-    <!-- skitza zone-->
+    <!-- אזור לסקיצה -->
   </div>
   <script>
     let tableId = 0;
     let totalGuests = 0;
 
-    // assign guess number
-    function setTotalGuests() {
-      const numGuests = parseInt(prompt('הזן את מספר המוזמנים:', '0'), 10);
-      if (!isNaN(numGuests) && numGuests > 0) {
-        totalGuests = numGuests;
+    // פונקציה לקביעת מספר המוזמנים
+    async function setTotalGuests() {
+      const { value: numGuests } = await Swal.fire({
+        title: 'הזן את מספר המוזמנים הכולל',
+        input: 'number',
+        inputLabel: 'מספר המוזמנים',
+        inputPlaceholder: 'הכנס מספר',
+        inputValidator: (value) => {
+          if (!value || value <= 0) {
+            return 'יש להזין מספר תקין!';
+          }
+        },
+        showCancelButton: true,
+        cancelButtonText: 'ביטול',
+        confirmButtonText: 'אישור',
+      });
+
+      if (numGuests) {
+        totalGuests = parseInt(numGuests, 10);
         updateTotalGuests();
-      } else {
-        alert('נא להזין מספר תקין.');
+        Swal.fire('הצלחה', `מספר המוזמנים עודכן ל-${totalGuests}`, 'success');
       }
     }
 
-    // add table
-    function addTable(type) {
+    // פונקציה להוספת שולחן
+    async function addTable(type) {
       if (totalGuests <= 0) {
-        alert('אין מספיק מוזמנים להוסיף שולחן.');
+        Swal.fire('שגיאה', 'אין מספיק מוזמנים כדי להוסיף שולחן.', 'error');
         return;
       }
 
-      const seats = parseInt(prompt('כמה מקומות בשולחן זה?', '4'), 10);
-      if (isNaN(seats) || seats <= 0 || seats > totalGuests) {
-        alert('מספר מקומות לא תקין או יותר מכמות המוזמנים.');
-        return;
+      const { value: seats } = await Swal.fire({
+        title: `הוסף שולחן ${type === 'round' ? 'עגול' : type === 'square' ? 'ריבועי' : 'מלבני'}`,
+        input: 'number',
+        inputLabel: 'מספר מקומות',
+        inputPlaceholder: 'הכנס את מספר המקומות',
+        inputValidator: (value) => {
+          if (!value || value <= 0 || value > totalGuests) {
+            return 'מספר המקומות לא תקין או חורג ממספר המוזמנים הקיים!';
+          }
+        },
+        showCancelButton: true,
+        cancelButtonText: 'ביטול',
+        confirmButtonText: 'אישור',
+      });
+
+      if (seats) {
+        totalGuests -= parseInt(seats, 10);
+        updateTotalGuests();
+
+        const canvas = document.getElementById('canvas');
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('table-wrapper');
+        wrapper.setAttribute('draggable', 'true');
+        wrapper.addEventListener('dragstart', dragStart);
+        wrapper.addEventListener('dragend', dragEnd);
+
+        const table = document.createElement('div');
+        table.classList.add('table', type);
+
+        const baseSize = 150;
+        const size = baseSize + seats * 10;
+        table.style.width = type === 'rectangle' ? `${size + 50}px` : `${size}px`;
+        table.style.height = type === 'rectangle' ? `${size / 2}px` : `${size}px`;
+
+        addChairsInside(table, seats);
+
+        wrapper.appendChild(table);
+        canvas.appendChild(wrapper);
+
+        wrapper.addEventListener('dblclick', async () => {
+          const { isConfirmed } = await Swal.fire({
+            title: 'האם אתה בטוח?',
+            text: 'שולחן זה יימחק ומספר המוזמנים יוחזר.',
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'ביטול',
+            confirmButtonText: 'מחק',
+          });
+
+          if (isConfirmed) {
+            canvas.removeChild(wrapper);
+            totalGuests += parseInt(seats, 10);
+            updateTotalGuests();
+            Swal.fire('נמחק', 'השולחן נמחק בהצלחה.', 'success');
+          }
+        });
       }
+    }
 
-      // decrease guest number
-      totalGuests -= seats;
-      updateTotalGuests();
-
-      // create table
-      const canvas = document.getElementById('canvas');
-      const table = document.createElement('div');
-      table.classList.add('table', type);
-      table.id = `table-${tableId++}`;
-      table.style.width = type === 'round' ? '200px' : '200px';
-      table.style.height = '200px';
-      table.style.top = '50px';
-      table.style.left = '50px';
-      table.style.position = 'absolute';
-
-      // add chairs
+    // פונקציה להוספת כיסאות בתוך השולחן
+    function addChairsInside(table, seats) {
       for (let i = 0; i < seats; i++) {
-        const angle = (360 / seats) * i;
         const chair = document.createElement('div');
         chair.classList.add('chair');
-        const radius = 70; // distance chair from radius
-        const x = Math.cos((angle * Math.PI) / 180) * radius + 80; // posision X
-        const y = Math.sin((angle * Math.PI) / 180) * radius + 80; // posision Y
-        chair.style.left = `${x}px`;
-        chair.style.top = `${y}px`;
 
-        // add guess name
-        chair.addEventListener('click', () => {
-          const guestName = prompt('הזן שם אורח לכיסא זה:');
+        chair.addEventListener('click', async () => {
+          const { value: guestName } = await Swal.fire({
+            title: 'הזן שם מוזמן',
+            input: 'text',
+            inputPlaceholder: 'הכנס שם מוזמן',
+            showCancelButton: true,
+            cancelButtonText: 'ביטול',
+            confirmButtonText: 'אישור',
+          });
+
           if (guestName) {
             chair.innerHTML = `<span class="guest-name">${guestName}</span>`;
+            Swal.fire('נוסף!', `שם המוזמן "${guestName}" נוסף לכיסא.`, 'success');
           }
         });
 
         table.appendChild(chair);
       }
-
-      canvas.appendChild(table);
-
-      // drag
-      table.setAttribute('draggable', 'true');
-      table.addEventListener('dragstart', dragStart);
-      table.addEventListener('dragend', dragEnd);
-
-      //delete table
-      table.addEventListener('dblclick', () => {
-        const confirmDelete = confirm('האם אתה בטוח שברצונך למחוק את השולחן?');
-        if (confirmDelete) {
-          canvas.removeChild(table);
-          totalGuests += seats; 
-          updateTotalGuests();
-        }
-      });
     }
 
-    // drag table
+    // פונקציה לגרירה
     function dragStart(event) {
       event.dataTransfer.setData('text/plain', event.target.id);
     }
@@ -192,12 +239,12 @@
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
 
-      const table = document.getElementById(event.target.id);
-      table.style.left = `${x}px`;
-      table.style.top = `${y}px`;
+      const wrapper = event.target;
+      wrapper.style.left = `${x}px`;
+      wrapper.style.top = `${y}px`;
     }
 
-    // update Total Guest look
+    // עדכון תצוגת מספר המוזמנים
     function updateTotalGuests() {
       document.getElementById('totalGuests').innerText = totalGuests;
     }
