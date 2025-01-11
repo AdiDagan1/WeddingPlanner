@@ -67,76 +67,85 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
-        .budget-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
         }
-        .budget-header h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #333;
+        .expense-actions {
+            display: flex;
+            gap: 10px;
         }
-        .budget-header .edit-icon {
-            margin-left: 10px;
+        .expense-actions span {
             cursor: pointer;
+            font-size: 18px;
             color: #007bff;
-            font-size: 20px;
+        }
+        .expense-actions span:hover {
+            color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="budget-container">
         <h1>ניהול תקציב</h1>
-        <div class="budget-header" id="budget-header" style="display: none;">
-            <h2 id="header-budget">סך התקציב: 0 ש"ח</h2>
-            <span class="edit-icon" id="edit-budget">✏️</span>
+    
+        <!-- חלק התקציב הראשוני -->
+        <div class="form-group" id="budget-input-group">
+            <label for="total-budget">סך התקציב:</label>
+            <input type="text" id="total-budget" placeholder="הזן את סך התקציב שלך" required>
+            <button type="button" id="set-budget">שמור תקציב</button>
         </div>
-
-        <form id="budget-form">
-            <div class="form-group" id="budget-input-group">
-                <label for="total-budget">סך התקציב:</label>
-                <input type="text" id="total-budget" placeholder="הזן את סך התקציב שלך" required>
-                <button type="button" id="set-budget">שמור תקציב</button>
+    
+        <!-- חלק שאר האופציות -->
+        <div id="other-options" style="display: none;">
+            <div class="budget-header" id="budget-header" style="display: none;">
+                <h2 id="header-budget">סך התקציב: 0 ש"ח</h2>
+                <span class="edit-icon" id="edit-budget">✏️</span>
             </div>
-
-            <div class="form-group">
-                <label for="expense-type">סוג הוצאה:</label>
-                <select id="expense-type">
-                    <option value="">בחר סוג הוצאה</option>
-                    <option value="קניות בסופר">קניות בסופר</option>
-                    <option value="תשלום חשמל">תשלום חשמל</option>
-                    <option value="דלק">דלק</option>
-                    <option value="בילוי">בילוי</option>
-                    <option value="אחר">אחר...</option>
-                </select>
+    
+            <form id="budget-form">
+                <div class="form-group">
+                    <label for="expense-type">סוג הוצאה:</label>
+                    <select id="expense-type">
+                        <option value="">בחר סוג הוצאה</option>
+                        <option value="קניות בסופר">קניות בסופר</option>
+                        <option value="תשלום חשמל">תשלום חשמל</option>
+                        <option value="דלק">דלק</option>
+                        <option value="בילוי">בילוי</option>
+                        <option value="אחר">אחר...</option>
+                    </select>
+                </div>
+                <div class="form-group" id="custom-expense-group" style="display: none;">
+                    <label for="custom-expense">סוג הוצאה מותאם:</label>
+                    <input type="text" id="custom-expense" placeholder="הזן סוג הוצאה חדש">
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount">סכום הוצאה:</label>
+                    <input type="text" id="expense-amount" placeholder="הזן את סכום ההוצאה" required>
+                </div>
+                <button type="button" id="add-expense">הוסף הוצאה</button>
+            </form>
+    
+            <div class="budget-summary">
+                <p><strong>סך התקציב:</strong> <span id="display-total">0</span> ש"ח</p>
+                <p><strong>סך ההוצאות:</strong> <span id="display-expenses">0</span> ש"ח</p>
+                <p><strong>תקציב נותר:</strong> <span id="display-remaining">0</span> ש"ח</p>
             </div>
-            <div class="form-group" id="custom-expense-group" style="display: none;">
-                <label for="custom-expense">סוג הוצאה מותאם:</label>
-                <input type="text" id="custom-expense" placeholder="הזן סוג הוצאה חדש">
+    
+            <div class="expense-list">
+                <h3>רשימת הוצאות:</h3>
+                <ul id="expense-list"></ul>
             </div>
-            <div class="form-group">
-                <label for="expense-amount">סכום הוצאה:</label>
-                <input type="text" id="expense-amount" placeholder="הזן את סכום ההוצאה" required>
-            </div>
-            <button type="button" id="add-expense">הוסף הוצאה</button>
-        </form>
-
-        <div class="budget-summary">
-            <p><strong>סך התקציב:</strong> <span id="display-total">0</span> ש"ח</p>
-            <p><strong>סך ההוצאות:</strong> <span id="display-expenses">0</span> ש"ח</p>
-            <p><strong>תקציב נותר:</strong> <span id="display-remaining">0</span> ש"ח</p>
-        </div>
-
-        <div class="expense-list">
-            <h3>רשימת הוצאות:</h3>
-            <ul id="expense-list"></ul>
         </div>
     </div>
-
+    
     <script>
+
+
+// הסתרה ראשונית של שאר האפשרויות
+document.getElementById('other-options').style.display = 'none';
+
+
         // משתנים
         let totalBudget = 0;
         let totalExpenses = 0;
@@ -157,6 +166,26 @@
         const displayExpenses = document.getElementById('display-expenses');
         const displayRemaining = document.getElementById('display-remaining');
         const expenseList = document.getElementById('expense-list');
+
+        // שמירת התקציב הראשוני
+setBudgetButton.addEventListener('click', () => {
+    totalBudget = parseFloat(totalBudgetInput.value.replace(/,/g, '')) || 0;
+
+    if (totalBudget > 0) {
+        updateDisplay();
+        headerBudget.textContent = `סך התקציב: ${formatNumber(totalBudget)} ש"ח`;
+        budgetHeader.style.display = 'flex';
+
+        // הסתרת חלק התקציב הראשוני
+        document.getElementById('budget-input-group').style.display = 'none';
+
+        // הצגת שאר האפשרויות
+        document.getElementById('other-options').style.display = 'block';
+    } else {
+        alert('אנא הזן תקציב חוקי.');
+    }
+});
+
 
         // שמירת התקציב הראשוני
         setBudgetButton.addEventListener('click', () => {
@@ -186,7 +215,7 @@
         // הוספת הוצאה
         addExpenseButton.addEventListener('click', () => {
             const expenseType = expenseTypeInput.value === 'אחר' ? customExpenseInput.value : expenseTypeInput.value;
-            const expenseAmount = parseFloat(expenseAmountInput.value.replace(/,/g, '')) || 0;
+            let expenseAmount = parseFloat(expenseAmountInput.value.replace(/,/g, '')) || 0;
 
             if (!expenseType || expenseAmount <= 0) {
                 alert('אנא הזן סוג הוצאה וסכום תקף.');
@@ -197,8 +226,55 @@
 
             // הוספת הוצאה לרשימה
             const listItem = document.createElement('li');
-            listItem.textContent = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח`;
+            listItem.innerHTML = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח
+                <div class="expense-actions">
+                    <span class="edit-expense">✏️</span>
+                    <span class="delete-expense">🗑️</span>
+                </div>`;
+
             expenseList.appendChild(listItem);
+
+            const editButton = listItem.querySelector('.edit-expense');
+            const deleteButton = listItem.querySelector('.delete-expense');
+
+           // עריכת הוצאה
+editButton.addEventListener('click', () => {
+    const newAmount = prompt('עדכן את סכום ההוצאה:', expenseAmount);
+    if (newAmount && !isNaN(newAmount) && parseFloat(newAmount) >= 0) {
+        totalExpenses -= expenseAmount;
+        expenseAmount = parseFloat(newAmount);
+        totalExpenses += expenseAmount;
+
+        listItem.innerHTML = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח
+            <div class="expense-actions">
+                <span class="edit-expense">✏️</span>
+                <span class="delete-expense">🗑️</span>
+            </div>`;
+        updateDisplay();
+
+        // מציאת הכפתורים החדשים
+        const newEditButton = listItem.querySelector('.edit-expense');
+        const newDeleteButton = listItem.querySelector('.delete-expense');
+
+        // חיבור מאזינים מחדש
+        newEditButton.addEventListener('click', () => editButton.click());
+        newDeleteButton.addEventListener('click', () => {
+            totalExpenses -= expenseAmount;
+            if (totalExpenses < 0) totalExpenses = 0; // מניעת סכום שלילי
+            listItem.remove();
+            updateDisplay();
+        });
+    }
+});
+
+
+            // מחיקת הוצאה
+            deleteButton.addEventListener('click', () => {
+                totalExpenses -= expenseAmount;
+                if (totalExpenses < 0) totalExpenses = 0; // מניעת סכום שלילי
+                listItem.remove();
+                updateDisplay();
+            });
 
             expenseTypeInput.value = '';
             customExpenseInput.value = '';
