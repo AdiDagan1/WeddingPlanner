@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול רשימת ספקים לחתונה</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select, button {
+            padding: 8px;
+            margin-top: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #new-supplier {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>ניהול רשימת ספקים לחתונה</h1>
+
+    <div class="form-section">
+        <label for="supplier-select">בחר ספק מתוך הרשימה:</label>
+        <select id="supplier-select" onchange="toggleNewSupplierInput()">
+            <option value="">-- בחר ספק --</option>
+            <option value="אולם">אולם</option>
+            <option value="קייטרינג">קייטרינג</option>
+            <option value="דייגי">דייגי</option>
+            <option value="צלם סטילס">צלם סטילס</option>
+            <option value="צלם וידיאו">צלם וידיאו</option>
+            <option value="צלם מגנטים">צלם מגנטים</option>
+            <option value="מאפרת">מאפרת</option>
+            <option value="סידור שיער">סידור שיער</option>
+            <option value="השכרת ציוד">השכרת ציוד</option>
+            <option value="הגברה ותאורה">הגברה ותאורה</option>
+            <option value="רב">רב</option>
+            <option value="אחר">אחר</option>
+        </select>
+
+        <div id="new-supplier">
+            <label for="other-supplier">הכנס שם ספק:</label>
+            <input type="text" id="other-supplier" placeholder="הקלד שם ספק">
+        </div>
+
+        <button onclick="addSupplier()">הוסף ספק</button>
+    </div>
+
+    <table id="supplier-table">
+        <thead>
+            <tr>
+                <th>שם ספק</th>
+                <th>מייל</th>
+                <th>טלפון</th>
+                <th>העלה חוזה</th>
+                <th>פעולות</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ספקים יתווספו כאן -->
+        </tbody>
+    </table>
+
+    <script>
+        function toggleNewSupplierInput() {
+            const supplierSelect = document.getElementById('supplier-select');
+            const newSupplierDiv = document.getElementById('new-supplier');
+
+            if (supplierSelect.value === 'אחר') {
+                newSupplierDiv.style.display = 'block';
+            } else {
+                newSupplierDiv.style.display = 'none';
+            }
+        }
+
+        function addSupplier() {
+            const supplierSelect = document.getElementById('supplier-select');
+            const otherSupplierInput = document.getElementById('other-supplier');
+            const tableBody = document.getElementById('supplier-table').querySelector('tbody');
+
+            let supplierName = supplierSelect.value === 'אחר' ? otherSupplierInput.value.trim() : supplierSelect.value;
+
+            if (!supplierName) {
+                alert('אנא בחר או הוסף שם ספק.');
+                return;
+            }
+
+            // Reset inputs
+            supplierSelect.value = '';
+            otherSupplierInput.value = '';
+            toggleNewSupplierInput();
+
+            // Create new row
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${supplierName}</td>
+                <td><input type="email" placeholder="הקלד מייל"></td>
+                <td><input type="tel" placeholder="הקלד טלפון"></td>
+                <td><input type="file" accept=".pdf,.doc,.docx"></td>
+                <td><button onclick="removeRow(this)">מחק</button></td>
+            `;
+
+            tableBody.appendChild(newRow);
+        }
+
+        function removeRow(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+        }
+    </script>
+</body>
+</html>
