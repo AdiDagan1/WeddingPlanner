@@ -23,7 +23,7 @@
         .taskContainer {
             margin-top: 10px;
         }
-        .design, .food, .sapak {
+        .design, .food, .sapak,.clothes, .attraction, .else {
             margin-bottom: 20px;
             padding: 15px;
             border-radius: 8px; 
@@ -31,15 +31,15 @@
             width: 20%;
         }
 
-        .design {
+        .design, .clothes {
             background: linear-gradient(135deg, #F7EFE5, #E8DCCA);
         }
 
-        .food {
+        .food, .attraction{
             background: linear-gradient(135deg, #E2BFD9, #D1A4C7);
         }
 
-        .sapak {
+        .sapak, .else{
             background: linear-gradient(135deg, #C8A1E0, #B38ED0);
         }
 
@@ -72,6 +72,27 @@
                 <h3>ספקים</h3>
                 <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
                 <button onclick="addMission('sapak')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+
+            <div class="clothes" id="clothes">
+                <h3>ביגוד</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('clothes')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+
+            <div class="attraction" id="attraction">
+                <h3>אטרקציות</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('attraction')" class="addTaskBtn">הוסף</button>
+                <div class="taskContainer"></div>
+            </div>
+
+            <div class="else" id="else">
+                <h3>אחר</h3>
+                <input type="text" class="newTaskInput" placeholder="הזן משימה חדשה">
+                <button onclick="addMission('else')" class="addTaskBtn">הוסף</button>
                 <div class="taskContainer"></div>
             </div>
         </section>
@@ -159,7 +180,7 @@
 
         // Load tasks for all categories on page load
         window.onload = () => {
-            ["design", "food", "sapak"].forEach(loadTasks);
+            ["design", "food", "sapak", "clothes", "attraction", "else"].forEach(loadTasks);
         };
     </script>
 </body>
