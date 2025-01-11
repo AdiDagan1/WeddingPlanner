@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>תכנון הושבה</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #fef6e4; 
+    }
+
+    h1 {
+      margin: 20px 0;
+      color: #d291bc; 
+    }
+
+    #controls {
+      margin: 20px;
+    }
+
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      border: none;
+      background-color: #d291bc; 
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #c374a8;
+    }
+
+    #canvas {
+      width: 90%;
+      height: 600px;
+      border: 2px solid #ccc;
+      margin: 0 auto;
+      position: relative;
+      background-color: #fff; 
+      overflow: hidden;
+    }
+
+    .table {
+      position: absolute;
+      text-align: center;
+      border: 2px solid #d291bc; 
+      background-color: #fde2e4; 
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      cursor: grab;
+    }
+
+    .round {
+      border-radius: 50%;
+    }
+
+    .chair {
+      width: 40px;
+      height: 40px;
+      background-color: #f8ad9d; 
+      border: 1px solid #c374a8;
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .chair:hover {
+      background-color: #e58e82;
+    }
+
+    .chair .guest-name {
+      font-size: 10px;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>מערכת לתכנון הושבה</h1>
+  <div id="controls">
+    <button onclick="setTotalGuests()">קבע כמות מוזמנים</button>
+    <button onclick="addTable('round')">הוסף שולחן עגול</button>
+    <button onclick="addTable('square')">הוסף שולחן מרובע</button>
+  </div>
+  <p>סך המוזמנים: <span id="totalGuests">0</span></p>
+  <div id="canvas">
+    <!-- skitza zone-->
+  </div>
+  <script>
+    let tableId = 0;
+    let totalGuests = 0;
+
+    // assign guess number
+    function setTotalGuests() {
+      const numGuests = parseInt(prompt('הזן את מספר המוזמנים:', '0'), 10);
+      if (!isNaN(numGuests) && numGuests > 0) {
+        totalGuests = numGuests;
+        updateTotalGuests();
+      } else {
+        alert('נא להזין מספר תקין.');
+      }
+    }
+
+    // add table
+    function addTable(type) {
+      if (totalGuests <= 0) {
+        alert('אין מספיק מוזמנים להוסיף שולחן.');
+        return;
+      }
+
+      const seats = parseInt(prompt('כמה מקומות בשולחן זה?', '4'), 10);
+      if (isNaN(seats) || seats <= 0 || seats > totalGuests) {
+        alert('מספר מקומות לא תקין או יותר מכמות המוזמנים.');
+        return;
+      }
+
+      // decrease guest number
+      totalGuests -= seats;
+      updateTotalGuests();
+
+      // create table
+      const canvas = document.getElementById('canvas');
+      const table = document.createElement('div');
+      table.classList.add('table', type);
+      table.id = `table-${tableId++}`;
+      table.style.width = type === 'round' ? '200px' : '200px';
+      table.style.height = '200px';
+      table.style.top = '50px';
+      table.style.left = '50px';
+      table.style.position = 'absolute';
+
+      // add chairs
+      for (let i = 0; i < seats; i++) {
+        const angle = (360 / seats) * i;
+        const chair = document.createElement('div');
+        chair.classList.add('chair');
+        const radius = 70; // distance chair from radius
+        const x = Math.cos((angle * Math.PI) / 180) * radius + 80; // posision X
+        const y = Math.sin((angle * Math.PI) / 180) * radius + 80; // posision Y
+        chair.style.left = `${x}px`;
+        chair.style.top = `${y}px`;
+
+        // add guess name
+        chair.addEventListener('click', () => {
+          const guestName = prompt('הזן שם אורח לכיסא זה:');
+          if (guestName) {
+            chair.innerHTML = `<span class="guest-name">${guestName}</span>`;
+          }
+        });
+
+        table.appendChild(chair);
+      }
+
+      canvas.appendChild(table);
+
+      // drag
+      table.setAttribute('draggable', 'true');
+      table.addEventListener('dragstart', dragStart);
+      table.addEventListener('dragend', dragEnd);
+
+      //delete table
+      table.addEventListener('dblclick', () => {
+        const confirmDelete = confirm('האם אתה בטוח שברצונך למחוק את השולחן?');
+        if (confirmDelete) {
+          canvas.removeChild(table);
+          totalGuests += seats; 
+          updateTotalGuests();
+        }
+      });
+    }
+
+    // drag table
+    function dragStart(event) {
+      event.dataTransfer.setData('text/plain', event.target.id);
+    }
+
+    function dragEnd(event) {
+      const canvas = document.getElementById('canvas');
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      const table = document.getElementById(event.target.id);
+      table.style.left = `${x}px`;
+      table.style.top = `${y}px`;
+    }
+
+    // update Total Guest look
+    function updateTotalGuests() {
+      document.getElementById('totalGuests').innerText = totalGuests;
+    }
+  </script>
+</body>
+</html>
