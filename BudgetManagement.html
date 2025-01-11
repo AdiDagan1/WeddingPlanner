@@ -106,15 +106,23 @@
             <form id="budget-form">
                 <div class="form-group">
                     <label for="expense-type">סוג הוצאה:</label>
-                    <select id="expense-type">
-                        <option value="">בחר סוג הוצאה</option>
-                        <option value="קניות בסופר">קניות בסופר</option>
-                        <option value="תשלום חשמל">תשלום חשמל</option>
-                        <option value="דלק">דלק</option>
-                        <option value="בילוי">בילוי</option>
-                        <option value="אחר">אחר...</option>
-                    </select>
-                </div>
+
+                        <select id="supplier-select" onchange="toggleNewSupplierInput()">
+                            <option value="">-- בחר ספק --</option>
+                            <option value="אולם">אולם</option>
+                            <option value="קייטרינג">קייטרינג</option>
+                            <option value="דייגי">דייגי</option>
+                            <option value="צלם סטילס">צלם סטילס</option>
+                            <option value="צלם וידיאו">צלם וידיאו</option>
+                            <option value="צלם מגנטים">צלם מגנטים</option>
+                            <option value="מאפרת">מאפרת</option>
+                            <option value="סידור שיער">סידור שיער</option>
+                            <option value="השכרת ציוד">השכרת ציוד</option>
+                            <option value="הגברה ותאורה">הגברה ותאורה</option>
+                            <option value="רב">רב</option>
+                            <option value="אחר">אחר</option>
+                        </select>
+               
                 <div class="form-group" id="custom-expense-group" style="display: none;">
                     <label for="custom-expense">סוג הוצאה מותאם:</label>
                     <input type="text" id="custom-expense" placeholder="הזן סוג הוצאה חדש">
