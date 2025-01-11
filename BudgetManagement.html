@@ -67,23 +67,21 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-        }
-        .budget-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
         }
-        .budget-header h2 {
-            margin: 0;
-            font-size: 24px;
-            color: #333;
+        .expense-actions {
+            display: flex;
+            gap: 10px;
         }
-        .budget-header .edit-icon {
-            margin-left: 10px;
+        .expense-actions span {
             cursor: pointer;
+            font-size: 18px;
             color: #007bff;
-            font-size: 20px;
+        }
+        .expense-actions span:hover {
+            color: #0056b3;
         }
     </style>
 </head>
@@ -186,7 +184,7 @@
         // הוספת הוצאה
         addExpenseButton.addEventListener('click', () => {
             const expenseType = expenseTypeInput.value === 'אחר' ? customExpenseInput.value : expenseTypeInput.value;
-            const expenseAmount = parseFloat(expenseAmountInput.value.replace(/,/g, '')) || 0;
+            let expenseAmount = parseFloat(expenseAmountInput.value.replace(/,/g, '')) || 0;
 
             if (!expenseType || expenseAmount <= 0) {
                 alert('אנא הזן סוג הוצאה וסכום תקף.');
@@ -197,8 +195,55 @@
 
             // הוספת הוצאה לרשימה
             const listItem = document.createElement('li');
-            listItem.textContent = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח`;
+            listItem.innerHTML = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח
+                <div class="expense-actions">
+                    <span class="edit-expense">✏️</span>
+                    <span class="delete-expense">🗑️</span>
+                </div>`;
+
             expenseList.appendChild(listItem);
+
+            const editButton = listItem.querySelector('.edit-expense');
+            const deleteButton = listItem.querySelector('.delete-expense');
+
+           // עריכת הוצאה
+editButton.addEventListener('click', () => {
+    const newAmount = prompt('עדכן את סכום ההוצאה:', expenseAmount);
+    if (newAmount && !isNaN(newAmount) && parseFloat(newAmount) >= 0) {
+        totalExpenses -= expenseAmount;
+        expenseAmount = parseFloat(newAmount);
+        totalExpenses += expenseAmount;
+
+        listItem.innerHTML = `${expenseType} - ${formatNumber(expenseAmount)} ש"ח
+            <div class="expense-actions">
+                <span class="edit-expense">✏️</span>
+                <span class="delete-expense">🗑️</span>
+            </div>`;
+        updateDisplay();
+
+        // מציאת הכפתורים החדשים
+        const newEditButton = listItem.querySelector('.edit-expense');
+        const newDeleteButton = listItem.querySelector('.delete-expense');
+
+        // חיבור מאזינים מחדש
+        newEditButton.addEventListener('click', () => editButton.click());
+        newDeleteButton.addEventListener('click', () => {
+            totalExpenses -= expenseAmount;
+            if (totalExpenses < 0) totalExpenses = 0; // מניעת סכום שלילי
+            listItem.remove();
+            updateDisplay();
+        });
+    }
+});
+
+
+            // מחיקת הוצאה
+            deleteButton.addEventListener('click', () => {
+                totalExpenses -= expenseAmount;
+                if (totalExpenses < 0) totalExpenses = 0; // מניעת סכום שלילי
+                listItem.remove();
+                updateDisplay();
+            });
 
             expenseTypeInput.value = '';
             customExpenseInput.value = '';
