@@ -3,46 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול אורחים</title>
-    <link rel="stylesheet" href="style.css">
+    <title>דף הבית</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            direction: rtl;
+            text-align: right;
+            background-color: #f9f9f9;
+        }
+        .navbar {
+            background-color: #007bff;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .navbar-brand:hover, .nav-link:hover {
+            color: #ffd700 !important;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .card:hover {
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
 </head>
 <body>
-    <h1>אישורי הגעה</h1>
-    <label for="fileInput" id="fileLabel">העלאת אקסל חדש</label>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">ניהול חתונה</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="BudgetManagement.html">ניהול תקציב</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="guestManagement.html">ניהול אורחים</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="Supplier.html">רשימת ספקים</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#loginModal" data-bs-toggle="modal">התחבר</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#signupModal" data-bs-toggle="modal">הרשמה</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <input type="file" id="fileInput" accept=".xlsx">
+    <!-- Page Content -->
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">ברוכים הבאים למערכת ניהול החתונה</h1>
+        <div class="row g-4">
+            <!-- Card for Budget Management -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">ניהול תקציב</h5>
+                        <p class="card-text">נהלו את התקציב שלכם בקלות וביעילות.</p>
+                        <a href="BudgetManagement.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Card for Guest Management -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">ניהול אורחים</h5>
+                        <p class="card-text">נהלו את רשימת האורחים והאישורים בקלות.</p>
+                        <a href="guestManagement.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Card for Supplier Management -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">רשימת ספקים</h5>
+                        <p class="card-text">ארגנו את רשימת הספקים שלכם במקום אחד.</p>
+                        <a href="Supplier.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div id="summary" style="text-align: center; margin-top: 20px; font-size: 18px;">
-      
+        <div class="row g-4 mt-4">
+            <!-- Card for ToDoList -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">רשימת משימות</h5>
+                        <p class="card-text">נהלו את המשימות לתכנון החתונה.</p>
+                        <a href="ToDoList.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Card for ToDoListPerSection -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">רשימת משימות לפי קטגוריות</h5>
+                        <p class="card-text">ארגנו משימות לפי קטגוריות.</p>
+                        <a href="ToDoListPerSection.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+            <!-- Card for Guest Page -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">דף אורחים</h5>
+                        <p class="card-text">אורחים יכולים לאשר הגעה כאן.</p>
+                        <a href="guestPage.html" class="btn btn-primary">כניסה</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button onclick="downloadUpdatedExcel()">הורד טבלה מעודכנת לקובץ אקסל</button>
-    <button id="sendInvitationsButton" onclick="sendInvitations()">שלח הזמנה למוזמנים</button>
-    <button id="sendRemindersButton" onclick="sendReminders()">שלח תזכורת למוזמנים שלא אישרו הגעה</button>
 
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">התחברות</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">אימייל</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">סיסמה</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">התחבר</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <table id="guestTable">
-        <thead>
-            <tr>
-                <th>מספר אורח</th>
-                <th>שם מלא</th>
-                <th>מספר טלפון</th>
-                <th>מספר אורחים</th>
-                <th>סטטוס הגעה</th>
-                <th> הערות אורחים נוספים</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-    
-    <script>
-        // קריאה להטענת הנתונים אם יש ב-localStorage
-        window.onload = function() {
-            loadFromLocalStorage();
-        };
-    </script>
-    
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="signupModalLabel">הרשמה</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="signupName" class="form-label">שם מלא</label>
+                            <input type="text" class="form-control" id="signupName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupEmail" class="form-label">אימייל</label>
+                            <input type="email" class="form-control" id="signupEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupPassword" class="form-label">סיסמה</label>
+                            <input type="password" class="form-control" id="signupPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">הירשם</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script src="app.js"></script>
 </html>
