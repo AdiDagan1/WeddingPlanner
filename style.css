@@ -1,50 +1,41 @@
-/* עיצוב כללי */
+/* General Styles */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Arial, sans-serif;
     direction: rtl;
-    text-align: center;
+    text-align: right;
     margin: 0;
     padding: 0;
-    background-color: #f9f9f9;
+    background-color: #fefbf5;
 }
 
-/* כותרת ראשית */
-h1 {
+h1, h2, h3 {
+    color: #4a4a4a;
+    text-align: center;
     margin: 20px 0;
-    color: #333;
+    font-family: 'Playfair Display', serif;
 }
 
-/* קלט קובץ */
-input[type="file"] {
-    margin: 20px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-/* כפתורים */
+/* Buttons */
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+    padding: 10px 15px;
+    background-color: #d4af37; /* Gold */
+    color: #fff;
     border: none;
     border-radius: 4px;
-    background-color: #007BFF;
-    color: white;
+    cursor: pointer;
     transition: background-color 0.3s;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #b89430;
 }
 
-/* טבלאות */
+/* Tables */
 table {
     margin: 20px auto;
     border-collapse: collapse;
-    width: 80%;
+    width: 90%;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -59,18 +50,75 @@ th, td {
 th {
     background-color: #f2f2f2;
     font-weight: bold;
-    color: #333;
 }
 
-td select {
-    padding: 5px;
-    font-size: 14px;
+/* Inputs */
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
-    cursor: pointer;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
 }
 
-/* כותרת הטבלה */
-thead th {
-    text-transform: uppercase;
+/* Forms */
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Section */
+header {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #fefbf5, #f8eecf);
+    border-bottom: 2px solid #d4af37;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin: 0;
+}
+
+/* Card Styles */
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+.card img {
+    width: 100%;
+    border-bottom: 2px solid #d4af37;
+}
+
+.card h2 {
+    font-size: 1.5rem;
+    margin: 15px;
+    color: #4a4a4a;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px;
+    background: #d4af37;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
 }

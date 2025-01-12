@@ -4,67 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול רשימות משימות</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<style>
-   body {
-    padding: 20px;
-    gap: 20px; 
-    direction: rtl;
-    background:#a2998c
-}
 
-.category-sixMonths, .category-fourMonths, .category-twoMonths, .category-oneMonth, button {
-    margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 8px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-    width:20%;
-
-}
-.category-sixMonths {
-    background: linear-gradient(135deg, #F7EFE5, #E8DCCA);
-}
-
-.category-fourMonths {
-    background: linear-gradient(135deg, #E2BFD9, #D1A4C7);
-}
-
-.category-twoMonths {
-    background: linear-gradient(135deg, #C8A1E0, #B38ED0);
-}
-.category-oneMonth{
-    background: linear-gradient(135deg, #b683d6, #7c2bb9);
-}
-
-input[type="checkbox"] {
-    transform: scale(1.3);
-}
-
-label {
-    font-size: 16px;
-    line-height: 1.8;
-    cursor: pointer; 
-}
-header h1 {
-    font-size: 36px;
-    color:#dc46c1;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
-    padding-bottom: 10px;
-    border-bottom: 3px solid #4A47A3;
-    text-align: center;
-}
-.deleteTaskBtn {
-    margin-left: 10px;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-
-
-</style>
 </head>
 <script>
     let taskCounter = 24; 
