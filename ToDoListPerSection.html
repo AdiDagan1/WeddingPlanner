@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול רשימות משימות</title>
     <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
     <div>
@@ -78,8 +79,8 @@
                 taskContainer.removeChild(newTaskDiv);
             };
 
-            newTaskDiv.appendChild(newCheckBox);
             newTaskDiv.appendChild(newLabel);
+            newTaskDiv.appendChild(newCheckBox);
             newTaskDiv.appendChild(deleteButton);
 
             taskContainer.appendChild(newTaskDiv);

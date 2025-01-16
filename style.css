@@ -122,3 +122,36 @@ footer {
     bottom: 0;
     width: 100%;
 }
+.taskContainer div {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.taskContainer input[type="checkbox"] {
+    margin-left: 8px;
+    cursor: pointer;
+}
+#categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+
+}
+.design, .food, .sapak, .clothes, .attraction, .else{
+    border: 1px solid #030202;
+    border-radius: 5px;
+}
+.taskContainer label {
+    flex-grow: 1;
+    cursor: pointer;
+}       
+.newTaskInput {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
