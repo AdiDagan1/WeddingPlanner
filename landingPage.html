@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חתונה של הזוג המאושר</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            direction: rtl;
+        }
+
+        header {
+            background-color: rgba(255, 255, 255, 0.6);
+            position: absolute;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header nav a {
+            text-decoration: none;
+            color: #555;
+            font-weight: bold;
+            margin: 0 15px;
+        }
+
+        header nav a:hover {
+            color: #d4af37;
+        }
+
+        .hero {
+            background: url('/photos/background.webp') center center/cover no-repeat;
+            height: 500px;
+            display: flex;
+            align-items: start;
+            justify-content: center;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            top: 0;
+        }
+
+        .hero h1 {
+            font-size: 3em;
+        }
+
+        .sections {
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .sections h2 {
+            font-size: 2em;
+            color: #d4af37;
+            margin-bottom: 20px;
+        }
+
+        .sections p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .gallery img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #fff;
+            text-align: center;
+            padding: 20px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            margin: 0;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div><strong>חתונת השנה</strong></div>
+            <div>
+                <a href="#about">עלינו</a>
+                <a href="#gallery">גלריה</a>
+                <a href="#">אזור אישי</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1 style="margin-top: 10%;">תכנון חתונת החלומות שלכם</h1>
+    </section>
+
+    <section class="sections" id="about">
+        <h2>עלינו</h2>
+        <p>ברוכים הבאים לאירוע המרגש של חיינו. אנו נרגשים לחלוק איתכם את הרגעים המיוחדים שלנו. נשמח לראותכם איתנו ביום המיוחד.</p>
+    </section>
+
+    <section class="sections" id="gallery">
+        <h2>גלריה</h2>
+        <div class="gallery">
+            <img src="/photos/couple1.webp" alt="תמונה 1">
+            <img src="photos/couple2.webp" alt="תמונה 2">
+            <img src="photos/couple3.webp" alt="תמונה 3">
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 כל הזכויות שמורות. עיצוב והפקה בידי הזוג המאושר.</p>
+    </footer>
+</body>
+</html>
