@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול רשימות משימות</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
     <div>
@@ -60,36 +59,6 @@
     <script>
         let taskCounter = 0;
 
-        // Function to load tasks from localStorage
-        const loadTasks = (categoryId) => {
-            const category = document.getElementById(categoryId);
-            const taskContainer = category.querySelector(".taskContainer");
-            const savedTasks = JSON.parse(localStorage.getItem(categoryId)) || [];
-
-            savedTasks.forEach((task) => {
-                createTaskElement(taskContainer, categoryId, task.text, task.id, task.completed);
-            });
-        };
-
-        // Function to save tasks to localStorage
-        const saveTasks = (categoryId) => {
-            const category = document.getElementById(categoryId);
-            const taskContainer = category.querySelector(".taskContainer");
-            const tasks = [];
-
-            taskContainer.querySelectorAll("div").forEach((taskDiv) => {
-                const checkbox = taskDiv.querySelector("input[type='checkbox']");
-                const label = taskDiv.querySelector("label");
-                tasks.push({
-                    id: checkbox.id,
-                    text: label.textContent,
-                    completed: checkbox.checked,
-                });
-            });
-
-            localStorage.setItem(categoryId, JSON.stringify(tasks));
-        };
-
         // Function to create a task element
         const createTaskElement = (taskContainer, categoryId, taskText, taskId = `task${taskCounter}`, completed = false) => {
             const newTaskDiv = document.createElement("div");
@@ -107,7 +76,6 @@
 
             deleteButton.onclick = () => {
                 taskContainer.removeChild(newTaskDiv);
-                saveTasks(categoryId);
             };
 
             newTaskDiv.appendChild(newCheckBox);
@@ -132,14 +100,7 @@
             }
 
             createTaskElement(taskContainer, categoryId, taskText);
-            saveTasks(categoryId);
-
             inputField.value = "";
-        };
-
-        // Load tasks for all categories on page load
-        window.onload = () => {
-            ["design", "food", "sapak", "clothes", "attraction", "else"].forEach(loadTasks);
         };
     </script>
 </body>
