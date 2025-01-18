@@ -140,9 +140,10 @@ footer {
     margin-top: 20px;
 
 }
-.design, .food, .sapak, .clothes, .attraction, .else{
+#design, #food, #sapak, #clothes, #attraction, #else{
     border: 1px solid #030202;
     border-radius: 5px;
+    margin: 2%;
 }
 .taskContainer label {
     flex-grow: 1;

@@ -28,9 +28,9 @@
             <option value="אחר">אחר</option>
         </select>
 
-        <div id="new-supplier">
-            <label for="other-supplier">הכנס שם ספק:</label>
-            <input type="text" id="other-supplier" placeholder="הקלד שם ספק">
+        <div id="new-supplier" style="display: none;">
+            <label for="supplier-other">הכנס שם ספק:</label>
+            <input type="text" id="supplier-other" placeholder="הקלד שם ספק">
         </div>
 
         <button onclick="addSupplier()">הוסף ספק</button>
@@ -39,7 +39,7 @@
     <table id="supplier-table">
         <thead>
             <tr>
-                <th>שם ספק</th>
+                <th>סוג ספק</th>
                 <th>מייל</th>
                 <th>טלפון</th>
                 <th>העלה חוזה</th>
@@ -56,47 +56,95 @@
             const supplierSelect = document.getElementById('supplier-select');
             const newSupplierDiv = document.getElementById('new-supplier');
 
+            // בדיקה אם נבחר "אחר"
             if (supplierSelect.value === 'אחר') {
-                newSupplierDiv.style.display = 'block';
+                newSupplierDiv.style.display = 'block'; // הצג את התיבה
             } else {
-                newSupplierDiv.style.display = 'none';
+                newSupplierDiv.style.display = 'none'; // הסתר את התיבה
             }
         }
-
+    
         function addSupplier() {
             const supplierSelect = document.getElementById('supplier-select');
-            const otherSupplierInput = document.getElementById('other-supplier');
+            const supplierNameInput = document.getElementById('supplier-other');
             const tableBody = document.getElementById('supplier-table').querySelector('tbody');
-
-            let supplierName = supplierSelect.value === 'אחר' ? otherSupplierInput.value.trim() : supplierSelect.value;
-
+    
+            let supplierName = supplierSelect.value === 'אחר' ? supplierNameInput.value.trim() : supplierSelect.value;
+    
             if (!supplierName) {
                 alert('אנא בחר או הוסף שם ספק.');
                 return;
             }
 
-            // Reset inputs
-            supplierSelect.value = '';
-            otherSupplierInput.value = '';
-            toggleNewSupplierInput();
-
+    
             // Create new row
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
-                <td>${supplierName}</td>
+                <td>${supplierName}</td> <!-- שם הספק -->
                 <td><input type="email" placeholder="הקלד מייל"></td>
                 <td><input type="tel" placeholder="הקלד טלפון"></td>
                 <td><input type="file" accept=".pdf,.doc,.docx"></td>
-                <td><button onclick="removeRow(this)">מחק</button></td>
+                <td><button onclick="saveRow(this)">שמירה</button></td>
             `;
-
+    
             tableBody.appendChild(newRow);
-        }
 
-        function removeRow(button) {
-            const row = button.parentElement.parentElement;
-            row.remove();
+            // Reset inputs
+            supplierSelect.value = '';
+            supplierNameInput.value = ''; // נקה את התיבה של שם ספק
+            document.getElementById('new-supplier').style.display = "none";
         }
+    
+        function saveRow(button) {
+            const row = button.parentElement.parentElement;
+    
+            // Get all input fields in the row
+            const inputs = row.querySelectorAll('input');
+    
+            // Replace inputs with their values
+            inputs.forEach(input => {
+                const cell = input.parentElement;
+                const value = input.type === 'file' ? 'חוזה לא הועלה' : input.value;
+                cell.textContent = value;
+            });
+    
+            // Change the button to "עריכה"
+            button.textContent = 'עריכה';
+            button.onclick = () => editRow(button);
+        }
+    
+        function editRow(button) {
+            const row = button.parentElement.parentElement;
+    
+            // Get all cells in the row
+            const cells = row.querySelectorAll('td');
+    
+            // Replace text content with input fields
+            cells.forEach((cell, index) => {
+                if (index === 0) {
+                    // Skip editing supplier name (first column)
+                    return;
+                }
+                if (index < 3) { // Only replace specific columns
+                    const value = cell.textContent;
+                    const inputType = index === 1 ? 'email' : 'tel'; // Email or Tel input
+                    cell.innerHTML = `<input type="${inputType}" value="${value}">`;
+                } else if (index === 3) {
+                    cell.innerHTML = `<input type="file" accept=".pdf,.doc,.docx">`;
+                }
+            });
+    
+            // Change the button to "שמירה"
+            button.textContent = 'שמירה';
+            button.onclick = () => saveRow(button);
+        }
+    
+        // תמיד להציג את התיבה
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleNewSupplierInput();
+        });
     </script>
+    
+    
 </body>
 </html>
