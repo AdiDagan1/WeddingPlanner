@@ -1,193 +1,690 @@
-<!DOCTYPE html>
 <html lang="he">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ניהול אורחים</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/mywebsite/css/style.css">
+    <style>
+        /* עיצוב לאזור העלאת קובץ */
+        #uploadExcelSection {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #fileInput {
+            width: auto;
+        }
+
+        /* עיצוב טולטיפ */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip-icon {
+            background-color: #007BFF;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            text-align: left;
+            border-radius: 5px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            top: 150%; /* מיקום מתחת לאייקון */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* סיכום המוזמנים בשורה אחת */
+        #summarySection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        #summaryTotal,
+        #summaryConfirmed {
+            margin: 0;
+        }
+
+        /* כפתורים וחיפוש באותה שורה */
+        #actionButtons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        #searchSection {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #searchInput {
+            padding: 5px;
+            font-size: 14px;
+            width: 200px;
+        }
+
+        /* גלגל טעינה */
+        #loadingSpinner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #007BFF;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>אישורי הגעה</h1>
-    <label for="fileInput" id="fileLabel">העלאת אקסל חדש</label>
+    <h1>ניהול אורחים</h1>
+    <p id="noDataMessage" style="display: none; color: red;">
+        לא נמצאו נתונים. אנא העלה קובץ אקסל.
+    </p>
 
-    <input type="file" id="fileInput" accept=".xlsx">
-
-    <div id="summary" style="text-align: center; margin-top: 20px; font-size: 18px;">
-      
+    <!-- העלאת קובץ אקסל -->
+    <div id="uploadExcelSection">
+        <label for="fileInput">העלאת קובץ אקסל:</label>
+        <input type="file" id="fileInput" accept=".xlsx">
+        <button id="uploadExcelButton" onclick="uploadExcel()">העלה קובץ</button>
+        <div class="tooltip">
+            <span class="tooltip-icon">?</span>
+            <div class="tooltip-text">
+                אנא צור קובץ אקסל עם העמודות הבאות:
+                <br><strong>שם מלא</strong>, <strong>מספר טלפון</strong>, <strong>מספר אורחים</strong>, <strong>סטטוס הגעה</strong>, <strong>הערות על מוזמנים נוספים</strong>.
+            </div>
+        </div>
     </div>
-    <button onclick="downloadUpdatedExcel()">הורד טבלה מעודכנת לקובץ אקסל</button>
-    <button id="sendInvitationsButton" onclick="sendInvitations()">שלח הזמנה למוזמנים</button>
-    <button id="sendRemindersButton" onclick="sendReminders()">שלח תזכורת למוזמנים שלא אישרו הגעה</button>
 
+    <div id="loadingSpinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
 
+    <!-- סיכום המוזמנים -->
+    <div id="summarySection">
+        <p id="summaryTotal">סה"כ מוזמנים: 0</p>
+        <p id="summaryConfirmed">מאשרים הגעה: 0</p>
+    </div>
+
+    <!-- כפתורים וחיפוש -->
+    <div id="actionButtons">
+        <button id="saveChangesButton" onclick="saveChanges()">שמור שינויים</button>
+        <button id="addGuestButton" onclick="addNewGuest()">הוספת אורח</button>
+        <div id="searchSection">
+            <label for="searchInput">חפש אורח לפי שם:</label>
+            <input type="text" id="searchInput" onkeyup="searchGuest()" placeholder="הקלד שם לחיפוש...">
+        </div>
+    </div>
+
+    <!-- טבלת אורחים -->
     <table id="guestTable">
         <thead>
             <tr>
-                <th>מספר אורח</th>
                 <th>שם מלא</th>
                 <th>מספר טלפון</th>
                 <th>מספר אורחים</th>
                 <th>סטטוס הגעה</th>
-                <th> הערות אורחים נוספים</th>
+                <th>הערות</th>
+                <th>פעולות</th>
             </tr>
         </thead>
         <tbody>
+            <!-- השורות יתווספו כאן דינמית -->
         </tbody>
     </table>
-    
-   
 </body>
+
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
 <script>
-    let originalData = []; // משתנה גלובלי לשמירת הנתונים
+    let guests = [];
+    let updatedRows = {};
 
-// טיפול בקובץ האקסל שהועלה
-document.getElementById('fileInput').addEventListener('change', handleFile);
-
-function handleFile(event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0]; // נשתמש בגיליון הראשון
-        const sheet = workbook.Sheets[sheetName];
-        originalData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // שמירת הטבלה במשתנה גלובלי
-
-        displayTable(originalData); // הצגת הטבלה
-    };
-
-    reader.readAsArrayBuffer(file);
-}
-
-// הצגת הטבלה בממשק
-function displayTable(data) {
-    const tableBody = document.querySelector('#guestTable tbody');
-    const summaryDiv = document.querySelector('#summary');
-    tableBody.innerHTML = ''; // נקה את הטבלה הקיימת
-    summaryDiv.innerHTML = ''; // נקה את הסיכום הקיים
-
-    let totalGuests = 0;
-    let confirmedGuests = 0;
-
-    data.slice(1).forEach((row, index) => {
-        const tr = document.createElement('tr');
-
-        if (isNaN(row[0])) {
-            const th = document.createElement('th');
-            th.setAttribute('colspan', 6);
-            th.textContent = row[0] || '';
-            th.style.textAlign = 'right';
-            th.style.backgroundColor = '#f0f0f0';
-            th.style.fontWeight = 'bold';
-            tr.appendChild(th);
-        } else {
-            const columns = {
-                id: row[0] || '',
-                name: row[1] || '',
-                phone: row[2] || '',
-                guests: parseInt(row[3]) || 0,
-                status: row[4] || 'ממתין לתשובה',
-                notes: row[5] || ''
-            };
-
-            totalGuests += columns.guests;
-
-            if (columns.status.startsWith('מגיעים')) {
-                const guestsConfirmed = parseInt(columns.status.split(' ')[1]) || 0;
-                confirmedGuests += guestsConfirmed;
-            } else if (columns.status === 'מגיע' || columns.status === 'אגיע לבד') {
-                confirmedGuests += 1;
-            }
-
-            let guestOptions = `<option value="ממתין לתשובה" ${columns.status === 'ממתין לתשובה' ? 'selected' : ''}>ממתין לתשובה</option>`;
-
-            if (columns.guests === 1) {
-                guestOptions += `<option value="מגיע" ${columns.status === 'מגיע' ? 'selected' : ''}>מגיע</option>`;
-                guestOptions += `<option value="לא מגיע" ${columns.status === 'לא מגיע' ? 'selected' : ''}>לא מגיע</option>`;
-            } else {
-                guestOptions += `<option value="אגיע לבד" ${columns.status === 'אגיע לבד' ? 'selected' : ''}>אגיע לבד</option>`;
-                guestOptions += `<option value="לא מגיעים" ${columns.status === 'לא מגיעים' ? 'selected' : ''}>לא מגיעים</option>`;
-                for (let i = 2; i <= columns.guests; i++) {
-                    guestOptions += `<option value="מגיעים ${i}" ${columns.status === `מגיעים ${i}` ? 'selected' : ''}>מגיעים ${i}</option>`;
-                }
-            }
-
-            tr.innerHTML = `
-                <td>${columns.id}</td>
-                <td>${columns.name}</td>
-                <td>${columns.phone}</td>
-                <td>${columns.guests}</td>
-                <td>
-                    <select class="guest-count">
-                        ${guestOptions}
-                    </select>
-                </td>
-                <td>${columns.notes}</td>
-            `;
-
-            const select = tr.querySelector('.guest-count');
-            select.addEventListener('change', (e) => {
-                const newStatus = e.target.value;
-                updateStatus(index + 1, newStatus);
-            });
-        }
-
-        tableBody.appendChild(tr);
-    });
-
-    summaryDiv.innerHTML = `
-        <p>סה"כ אורחים: <strong>${totalGuests}</strong></p>
-        <p>אורחים שאישרו הגעה: <strong>${confirmedGuests}</strong></p>
-    `;
-}
-
-// עדכון סטטוס במשתנה הגלובלי
-function updateStatus(rowIndex, newStatus) {
-    if (originalData[rowIndex]) {
-        originalData[rowIndex][4] = newStatus; // עדכון הסטטוס בעמודה 4 (סטטוס הגעה)
+    // שליפת אימייל מה-Session Storage
+    function getEmailFromSessionStorage() {
+        const email = sessionStorage.getItem('userEmail');
+        console.log("Email from Session Storage:", email);
+        return email;
     }
+
+
+// טיפול במקרה שבו אין נתונים להצגה
+function handleNoData() {
+    document.getElementById('noDataMessage').style.display = 'block';
+    document.getElementById('guestTable').style.display = 'none';
+    document.getElementById('saveChangesButton').style.display = 'none';
+    document.getElementById('uploadExcelSection').style.display = 'block';
 }
 
-// הורדת הטבלה המעודכנת
-function downloadUpdatedExcel() {
-    if (originalData.length === 0) {
-        alert('אין נתונים להורדה.');
+// טיפול במקרה שבו יש נתונים להצגה
+function handleHasData() {
+    document.getElementById('noDataMessage').style.display = 'none';
+    document.getElementById('guestTable').style.display = 'table';
+    document.getElementById('saveChangesButton').style.display = 'inline-block';
+    document.getElementById('uploadExcelSection').style.display = 'none';
+}
+
+// טיפול בשגיאות מהשרת
+function handleErrorResponse(response) {
+    response.json().then((errorDetails) => {
+        console.error("Error from server:", errorDetails);
+        alert(`Error: ${errorDetails.message}`);
+    });
+}
+
+async function uploadExcel() {
+    const fileInput = document.getElementById('fileInput').files[0];
+
+    if (!fileInput) {
+        alert('אנא בחר קובץ להעלאה.');
         return;
     }
 
-    const worksheet = XLSX.utils.aoa_to_sheet(originalData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    XLSX.writeFile(workbook, 'updated_guests.xlsx');
-}
+    const reader = new FileReader();
 
-// שליחת הזמנות דרך WhatsApp
-function sendInvitations() {
-    originalData.forEach(guest => {
-        const phoneNumber = guest[2];
-        if (phoneNumber) {
-            const message = `שלום ${guest[1]}, הזמנתך לחתונה התקבלה. אנא אשר אם אתה מגיע.`;
-            const messageLink = `https://wa.me/9720509000574?text=${encodeURIComponent(message)}`;
-            window.open(messageLink, '_blank');
+    reader.onload = async function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const guestsData = XLSX.utils.sheet_to_json(sheet);
+
+        // מיפוי לעמודות מהקובץ
+        const cleanedGuestsData = guestsData.map(guest => ({
+            name: guest['שם מלא'] || '',
+            phone: guest['מספר טלפון'] || '',
+            guests: parseInt(guest['מספר אורחים'] || 0),
+            status: 'ממתין לתשובה', // ברירת מחדל
+            notes: guest['הערות על מוזמנים נוספים'] || ''
+        }));
+
+        const email = getEmailFromSessionStorage();
+        if (!email) {
+            alert('שגיאה: לא נמצא אימייל ב-Session Storage.');
+            return;
         }
-    });
-    alert("ההזמנות נשלחו בהצלחה!");
-}
 
-// שליחת תזכורות למי שלא אישר הגעה
-function sendReminders() {
-    originalData.forEach(guest => {
-        if (guest[4] === 'ממתין לתשובה') {
-            const phoneNumber = guest[2];
-            const message = `שלום ${guest[1]}, תזכורת - הזמנתך לחתונה התקבלה. אנא אשר אם אתה מגיע.`;
-            const messageLink = `https://wa.me/9720509000574?text=${encodeURIComponent(message)}`;
-            window.open(messageLink, '_blank');
+        try {
+            const response = await fetch('https://e45n6anzq2kzwtprqbujthl54m0qflbo.lambda-url.us-east-1.on.aws/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, guests: cleanedGuestsData })
+            });
+
+            if (response.ok) {
+                alert('קובץ הועלה בהצלחה!');
+                const uploadSection = document.getElementById('uploadExcelSection');
+                uploadSection.style.display = 'none';
+                loadGuests(); // טען את הטבלה מחדש
+            } else {
+                handleErrorResponse(response);
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert('שגיאה בהעלאת הקובץ.');
         }
-    });
-    alert("תזכורות נשלחו למי שלא אישר הגעה!");
+    };
+
+    reader.readAsArrayBuffer(fileInput);
 }
 
+
+
+
+    // טעינת אורחים
+async function loadGuests() {
+    const email = getEmailFromSessionStorage();
+    if (!email) {
+        alert("אנא התחבר מחדש. האימייל חסר.");
+        return;
+    }
+
+    // הצגת גלגל הטעינה
+    document.getElementById('loadingSpinner').style.display = 'flex';
+
+    try {
+        const response = await fetch(`https://afwm4pbwwg4wtnn35bwiiwq7te0hogyu.lambda-url.us-east-1.on.aws/?email=${encodeURIComponent(email)}`);
+        if (response.ok) {
+            const data = await response.json();
+            if (!data || data.length === 0) {
+                alert("לא נמצאו נתונים. אנא העלה קובץ אקסל.");
+                document.getElementById('guestTable').style.display = 'none';
+                return;
+            }
+            guests = data;
+            renderTable();
+            updateSummary();
+        } else {
+            alert("שגיאה בטעינת האורחים.");
+        }
+    } catch (error) {
+        console.error("שגיאה בטעינת האורחים:", error);
+    } finally {
+        // הסתרת גלגל הטעינה
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
+}
+
+
+    // הצגת הטבלה
+function renderTable() {
+    document.getElementById('searchInput').value = '';
+    const tbody = document.getElementById('guestTable').querySelector('tbody');
+    tbody.innerHTML = '';
+
+    guests.forEach(guest => {
+        const guestId = parseInt(guest.guestId.N); // שמירת המזהה הייחודי
+        const numberOfGuests = parseInt(guest.guests.N) || 0; // ודא שמספר האורחים קיים
+        const statusOptions = generateStatusOptions(numberOfGuests, guest.status.S);
+
+        const row = `
+            <tr>
+                <td>${guest.name.S}</td>
+                <td><input type="text" value="${guest.phone.S}" onchange="trackChange(${guestId}, 'phone', this.value)"></td>
+                <td><input type="number" value="${numberOfGuests}" onchange="trackChange(${guestId}, 'guests', this.value); updateStatusOptions(${guestId}, this.value)"></td>
+                <td>
+                    <select id="statusSelect-${guestId}" onchange="trackChange(${guestId}, 'status', this.value)">
+                        ${statusOptions}
+                    </select>
+                </td>
+                <td><input type="text" value="${guest.notes.S || ''}" onchange="trackChange(${guestId}, 'notes', this.value)"></td>
+                <td><button onclick="deleteGuest(${guestId})">מחק</button></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+
+
+
+// יצירת אפשרויות דינמיות עבור הסטטוס
+function generateStatusOptions(numberOfGuests, currentStatus) {
+    let options = `<option value="ממתין לתשובה" ${currentStatus === 'ממתין לתשובה' ? 'selected' : ''}>ממתין לתשובה</option>`;
+
+    if (numberOfGuests === 1) {
+        // במידה ויש רק אורח אחד
+        options += `<option value="מגיע" ${currentStatus === 'מגיע' ? 'selected' : ''}>מגיע</option>`;
+        options += `<option value="לא מגיע" ${currentStatus === 'לא מגיע' ? 'selected' : ''}>לא מגיע</option>`;
+    } else if (numberOfGuests > 1) {
+        // במידה ויש יותר מאורח אחד
+        options += `<option value="לא מגיעים" ${currentStatus === 'לא מגיעים' ? 'selected' : ''}>לא מגיעים</option>`;
+        options += `<option value="מגיע לבד" ${currentStatus === 'מגיע לבד' ? 'selected' : ''}>מגיע לבד</option>`;
+        for (let i = 2; i <= numberOfGuests; i++) {
+            const label = `מגיעים ${i}`;
+            options += `<option value="${label}" ${currentStatus === label ? 'selected' : ''}>${label}</option>`;
+        }
+    }
+
+    return options;
+}
+
+
+// עדכון אפשרויות הסטטוס כאשר מספר האורחים משתנה
+function updateStatusOptions(guestId, newGuestCount) {
+    const numberOfGuests = parseInt(newGuestCount);
+
+    if (isNaN(numberOfGuests) || numberOfGuests < 1) {
+        alert('מספר האורחים חייב להיות לפחות 1.');
+        return;
+    }
+
+    const selectElement = document.getElementById(`statusSelect-${guestId}`);
+    const currentStatus = selectElement.value;
+
+    // יצירת אפשרויות חדשות בהתאם למספר האורחים
+    const newOptions = generateStatusOptions(numberOfGuests, currentStatus);
+
+    // עדכון הרשימה הנפתחת
+    selectElement.innerHTML = newOptions;
+
+    // שמירה של ברירת המחדל אם הערך הקודם אינו תקף
+    if (![...selectElement.options].some(option => option.value === currentStatus)) {
+        selectElement.value = "ממתין לתשובה"; // ברירת מחדל
+        trackChange(guestId, 'status', "ממתין לתשובה");
+    }
+}
+
+ function updateSummary() {
+    // חישוב סך המוזמנים
+    const totalGuests = guests.reduce((sum, guest) => sum + parseInt(guest.guests.N), 0);
+
+    // חישוב סך המוזמנים שאישרו הגעה
+    const confirmedGuests = guests.reduce((sum, guest) => {
+        const status = guest.status.S;
+        if (status === 'מגיע לבד' || status === 'מגיע') {
+            return sum + 1; // עבור "מגיע" או "מגיע לבד", נחשב כאורח אחד
+        } else if (status.startsWith('מגיעים')) {
+            const count = parseInt(status.split(' ')[1]); // חילוץ המספר מהסטטוס "מגיעים X"
+            return sum + (isNaN(count) ? 0 : count); // הוספת המספר אם הוא תקין
+        }
+        return sum; // לכל סטטוס אחר, אין שינוי
+    }, 0);
+
+    // עדכון האלמנטים בדף
+    document.getElementById('summaryTotal').textContent = `סה"כ מוזמנים: ${totalGuests}`;
+    document.getElementById('summaryConfirmed').textContent = `מאשרים הגעה: ${confirmedGuests}`;
+}
+
+    
+function trackChange(guestId, field, value) {
+    const guest = guests.find(g => parseInt(g.guestId.N) === parseInt(guestId));
+    if (!guest) {
+        console.error(`Guest with ID ${guestId} not found in guests list.`);
+        return;
+    }
+
+    // אם האורח לא קיים ב-"updatedRows", הוסף אותו עם כל הערכים הקיימים
+    if (!updatedRows[guestId]) {
+        updatedRows[guestId] = {
+            name: guest.name.S,
+            phone: guest.phone.S,
+            guests: parseInt(guest.guests.N), // ודא שמספר האורחים נשמר כערך מספרי
+            status: guest.status.S,
+            notes: guest.notes.S
+        };
+    }
+
+    // עדכן רק את השדה ששונה
+    updatedRows[guestId][field] = field === 'guests' ? parseInt(value) : value; // וודא שמספר האורחים נשמר כערך מספרי
+
+    console.log("Updated rows:", updatedRows);
+}
+
+function deleteGuest(guestId) {
+    const deletedGuest = guests.find(guest => parseInt(guest.guestId.N) === parseInt(guestId));
+    if (!deletedGuest) {
+        alert("שגיאה: האורח לא נמצא.");
+        return;
+    }
+
+    const confirmDelete = confirm(`האם אתה בטוח שברצונך למחוק את ${deletedGuest.name.S}?`);
+    if (!confirmDelete) return;
+
+    async function deleteGuestFromDB(guestId) {
+        const email = getEmailFromSessionStorage();
+
+        if (!email) {
+            throw new Error("שגיאה: לא נמצא אימייל ב-Session Storage.");
+        }
+
+        try {
+            const response = await fetch("https://e7xy6pl3vwqrqaaprbyiurd7ym0rqrig.lambda-url.us-east-1.on.aws/", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userEmail: email,
+                    guestId: guestId // שולח את ה-guestId למחיקה
+                }),
+            });
+
+            if (!response.ok) {
+                const errorDetails = await response.json();
+                console.error("שגיאה מהשרת:", errorDetails);
+                throw new Error(errorDetails.message || "שגיאה במחיקת האורח מהשרת.");
+            }
+
+            console.log(`Guest ${guestId} deleted successfully from DB.`);
+        } catch (error) {
+            console.error("שגיאה כללית בבקשת המחיקה:", error);
+            throw new Error(error.message || "שגיאה כללית בבקשת המחיקה.");
+        }
+    }
+
+    deleteGuestFromDB(guestId)
+        .then(() => {
+            guests = guests.filter(guest => parseInt(guest.guestId.N) !== parseInt(guestId));
+            alert(`האורח ${deletedGuest.name.S} נמחק בהצלחה!`);
+            renderTable();
+            updateSummary();
+        })
+        .catch((error) => {
+            console.error("שגיאה במחיקת האורח:", error);
+            alert("שגיאה במחיקת האורח.");
+        });
+}
+
+
+async function saveChanges() {
+    const email = getEmailFromSessionStorage();
+
+    if (!email) {
+        alert('שגיאה: לא נמצא אימייל ב-Session Storage.');
+        return;
+    }
+
+    try {
+        for (const guestId in updatedRows) {
+            const guestData = updatedRows[guestId];
+            console.log("Data being sent to the server:", {
+            userEmail: email,
+            guestId: parseInt(guestId),
+            guestData: guestData
+                            });
+
+            const response = await fetch('https://2sq4x32kwenq2xwv2ptnt7k4640hyype.lambda-url.us-east-1.on.aws/', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userEmail: email,
+                    guestId: parseInt(guestId), // המרה למספר
+                    guestData: guestData
+                })
+            });
+
+            if (response.ok) {
+                console.log(`Guest ${guestId} updated successfully.`);
+            } else {
+                const errorDetails = await response.json();
+                console.error(`Error updating guest ${guestId}:, errorDetails`);
+                alert(`שגיאה בשמירת השינויים לאורח ${guestId}`);
+            }
+        }
+
+        alert('השינויים נשמרו בהצלחה!');
+        updatedRows = {}; // אפס את המעקב אחרי שינויים
+    } catch (error) {
+        console.error('שגיאה כללית בשמירת השינויים:', error);
+        alert('שגיאה כללית בשמירת השינויים.');
+    }
+    loadGuests();
+}
+
+
+
+
+// חיפוש אורח
+function searchGuest() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const filteredGuests = guests.filter(guest => guest.name.S.toLowerCase().includes(searchValue));
+    const tbody = document.getElementById('guestTable').querySelector('tbody');
+    tbody.innerHTML = '';
+
+    filteredGuests.forEach(guest => {
+        const row = `
+            <tr>
+                <td>${guest.name.S}</td>
+                <td><input type="text" value="${guest.phone.S}" onchange="trackChange(${guest.guestId.N}, 'phone', this.value)"></td>
+                <td><input type="number" value="${guest.guests.N}" onchange="trackChange(${guest.guestId.N}, 'guests', this.value)"></td>
+                <td>
+                    <select onchange="trackChange(${guest.guestId.N}, 'status', this.value)">
+                        <option value="ממתין לתשובה" ${guest.status.S === 'ממתין לתשובה' ? 'selected' : ''}>ממתין לתשובה</option>
+                        <option value="מגיע" ${guest.status.S === 'מגיע' ? 'selected' : ''}>מגיע</option>
+                        <option value="לא מגיע" ${guest.status.S === 'לא מגיע' ? 'selected' : ''}>לא מגיע</option>
+                    </select>
+                </td>
+                <td><input type="text" value="${guest.notes.S}" onchange="trackChange(${guest.guestId.N}, 'notes', this.value)"></td>
+                <td><button onclick="deleteGuest(${guest.guestId.N})">מחק</button></td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+function addNewGuest() {
+    const tbody = document.getElementById('guestTable').querySelector('tbody');
+
+    // הסרת שורות קודמות של "הוספת אורח" אם קיימות
+    const existingNewRow = document.getElementById('newGuestRow');
+    if (existingNewRow) {
+        existingNewRow.remove();
+    }
+
+    // יצירת שורה ריקה להזנת אורח חדש
+    const newRow = document.createElement('tr');
+    newRow.id = 'newGuestRow';
+    newRow.innerHTML = `
+        <td><input type="text" id="newGuestName" placeholder="הכנס שם מלא"></td>
+        <td><input type="text" id="newGuestPhone" placeholder="הכנס מספר טלפון"></td>
+        <td><input type="number" id="newGuestCount" placeholder="הכנס מספר אורחים"></td>
+        <td>
+            <select id="newGuestStatus">
+                <option value="ממתין לתשובה" selected>ממתין לתשובה</option>
+            </select>
+        </td>
+        <td><input type="text" id="newGuestNotes" placeholder="הערות"></td>
+        <td>
+            <button onclick="confirmAddGuest()">אישור</button>
+            <button onclick="cancelAddGuest(this)">ביטול</button>
+        </td>
+    `;
+
+    // הוספת השורה לראש הטבלה
+    tbody.insertBefore(newRow, tbody.firstChild);
+}
+
+async function confirmAddGuest() {
+    const name = document.getElementById('newGuestName').value.trim();
+    const phone = document.getElementById('newGuestPhone').value.trim();
+    const guestsCount = document.getElementById('newGuestCount').value.trim();
+    const status = document.getElementById('newGuestStatus').value;
+    const notes = document.getElementById('newGuestNotes').value.trim();
+
+    // בדיקת ולידציה
+    if (!name || !phone || !guestsCount || isNaN(guestsCount) || guestsCount <= 0) {
+        alert('אנא מלא את כל השדות בפורמט הנכון.');
+        return;
+    }
+
+    const email = getEmailFromSessionStorage();
+    if (!email) {
+        alert('שגיאה: לא נמצא אימייל ב-Session Storage.');
+        return;
+    }
+
+    // חישוב guestId החדש
+    const nextGuestId = guests.length > 0 
+        ? Math.max(...guests.map(guest => parseInt(guest.guestId.N))) + 1 
+        : 1;
+
+    // יצירת אובייקט אורח חדש
+    const newGuest = {
+        guestId: nextGuestId, // שדה מספרי
+        name: name,
+        phone: phone,
+        guests: parseInt(guestsCount), // ודא שהערך הוא מספר
+        status: status,
+        notes: notes
+    };
+
+    try {
+        // שליחת הבקשה לשרת
+        const response = await fetch('https://e45n6anzq2kzwtprqbujthl54m0qflbo.lambda-url.us-east-1.on.aws/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, guests: [newGuest] }) // שולח את האימייל ורשימת האורחים
+        });
+
+        if (response.ok) {
+            // הוספת האורח למערך המקומי
+            guests.unshift({
+                guestId: { N: nextGuestId.toString() },
+                name: { S: name },
+                phone: { S: phone },
+                guests: { N: guestsCount.toString() },
+                status: { S: status },
+                notes: { S: notes }
+            });
+            alert('האורח נוסף בהצלחה!');
+            renderTable(); // עדכון הטבלה
+        } else {
+            const errorDetails = await response.json();
+            console.error("Error from server:", errorDetails);
+            alert('שגיאה בהוספת האורח: ' + errorDetails.message);
+        }
+    } catch (error) {
+        console.error("שגיאה בהוספת האורח:", error);
+        alert('שגיאה כללית בהוספת האורח.');
+    } finally {
+        // הסרת השורה הזמנית מהטבלה
+        const newRow = document.getElementById('newGuestRow');
+        if (newRow) newRow.remove();
+    }
+}
+
+
+function cancelAddGuest(button) {
+    const row = button.closest('tr');
+    row.remove();
+}
+
+
+    // טעינת האורחים עם פתיחת העמוד
+    loadGuests();
 </script>
+
 </html>
